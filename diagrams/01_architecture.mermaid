@@ -1,0 +1,50 @@
+flowchart TD
+    Client(["🌐 Client\nBrowser / Postman / curl"])
+
+    subgraph endpoints["📡 endpoints/  —  Entry Point + CORS"]
+        FE["foods.php"]
+        RE["recipes.php"]
+    end
+
+    subgraph controllers["🎮 controllers/  —  Routing + Validation"]
+        FC["FoodController.php"]
+        RC["RecipeController.php"]
+    end
+
+    subgraph models["📦 models/  —  Business Logic + SQL"]
+        FM["Food.php\ninit() · display() · addRecipe()\ncreate() · update() · delete()"]
+        RM["Recipe.php\ncreate() · update() · delete()\ngetAllByFoodId() · foodExists()"]
+    end
+
+    subgraph helpers["🛠️ helpers/"]
+        RH["Response.php\nsuccess() · created()\nerror() · notFound()"]
+    end
+
+    subgraph config["⚙️ config/"]
+        DB["database.php\nPDO Connection"]
+    end
+
+    MySQL[("🗄️ MySQL\nfood_recipe_db\n─────────────\nfoods\nrecipes")]
+
+    Client -->|"HTTP Request\nGET/POST/PUT/DELETE"| FE
+    Client -->|"HTTP Request\nGET/POST/PUT/DELETE"| RE
+
+    FE -->|"new FoodController()"| FC
+    RE -->|"new RecipeController()"| RC
+
+    FC -->|"new Food(db)"| FM
+    FC -->|"Response::json()"| RH
+
+    RC -->|"new Recipe(db)"| RM
+    RC -->|"Response::json()"| RH
+
+    FE -->|"new Database()"| DB
+    RE -->|"new Database()"| DB
+
+    DB -->|"PDO"| FM
+    DB -->|"PDO"| RM
+
+    FM -->|"SQL Query"| MySQL
+    RM -->|"SQL Query"| MySQL
+
+    RH -->|"JSON + HTTP Status"| Client

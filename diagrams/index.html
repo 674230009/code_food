@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Recipe API — System Diagrams</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+      border-bottom: 2px solid #334155;
+      padding: 28px 40px;
+    }
+    header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #60a5fa;
+      letter-spacing: 0.5px;
+    }
+    header p {
+      color: #94a3b8;
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      padding: 16px 40px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      flex-wrap: wrap;
+    }
+    nav button {
+      padding: 8px 18px;
+      border-radius: 20px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: all .2s;
+    }
+    nav button:hover   { background: #1e3a5f; color: #93c5fd; border-color: #3b82f6; }
+    nav button.active  { background: #1d4ed8; color: #fff; border-color: #3b82f6; }
+
+    main { padding: 32px 40px; }
+
+    .section {
+      display: none;
+      animation: fadeIn .3s ease;
+    }
+    .section.visible { display: block; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      background: #1d4ed8;
+      color: #bfdbfe;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-header h2 { font-size: 1.2rem; color: #f1f5f9; font-weight: 600; }
+    .section-header p  { font-size: 0.82rem; color: #64748b; margin-top: 2px; }
+
+    .desc-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .desc-box strong { color: #93c5fd; }
+
+    .diagram-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 32px 24px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    .diagram-card .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .http-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 20px;
+    }
+    .http-table th {
+      background: #0f172a;
+      color: #60a5fa;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #334155;
+    }
+    .http-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #1e293b;
+      color: #cbd5e1;
+    }
+    .http-table tr:hover td { background: #1e293b; }
+    .method { font-weight: 700; font-family: monospace; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+    .get    { background:#065f46; color:#6ee7b7; }
+    .post   { background:#1e3a8a; color:#93c5fd; }
+    .put    { background:#713f12; color:#fde68a; }
+    .delete { background:#7f1d1d; color:#fca5a5; }
+    .status { font-family: monospace; font-weight: 600; }
+    .s200 { color: #6ee7b7; }
+    .s201 { color: #93c5fd; }
+    .s404 { color: #fde68a; }
+    .s422 { color: #fca5a5; }
+    .s500 { color: #f87171; }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #475569;
+      font-size: 0.8rem;
+      border-top: 1px solid #1e293b;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🍽️ Food Recipe API — System Diagrams</h1>
+  <p>PHP PDO REST API · Food &amp; Recipe Management System · สำหรับนักศึกษา</p>
+</header>
+
+<nav id="nav">
+  <button class="active" onclick="show('arch',this)">🏗️ Architecture</button>
+  <button onclick="show('class',this)">📐 Class Diagram</button>
+  <button onclick="show('seq1',this)">➕ Sequence: Create Food</button>
+  <button onclick="show('seq2',this)">🔍 Sequence: Get Food</button>
+  <button onclick="show('seq3',this)">🗑️ Sequence: Delete Food</button>
+  <button onclick="show('api',this)">📡 API Reference</button>
+</nav>
+
+<main>
+
+  <!-- ======================== ARCHITECTURE ======================== -->
+  <div class="section visible" id="sec-arch">
+    <div class="section-header">
+      <span class="badge">Diagram 1</span>
+      <div>
+        <h2>🏗️ Architecture Overview</h2>
+        <p>โครงสร้างโฟลเดอร์และการไหลของ request จาก Client ถึง MySQL</p>
+      </div>
+    </div>
+
+    <div class="desc-box">
+      ระบบแบ่งเป็น 5 ชั้น: <strong>Client</strong> ส่ง HTTP Request เข้า <strong>endpoints/</strong> ซึ่งจัดการ CORS แล้วส่งต่อให้ <strong>controllers/</strong> ทำ routing + validation จากนั้น <strong>models/</strong> ทำ SQL query ผ่าน PDO ที่ได้จาก <strong>config/database.php</strong> — ทุก response ผ่าน <strong>helpers/Response.php</strong> เพื่อให้ format สม่ำเสมอ
+    </div>
+
+    <div class="diagram-card">
+      <div class="mermaid">
+flowchart TD
+    Client(["🌐 Client\nBrowser / Postman / curl"])
+
+    subgraph endpoints["📡 endpoints/  —  Entry Point + CORS"]
+        FE["foods.php"]
+        RE["recipes.php"]
+    end
+
+    subgraph controllers["🎮 controllers/  —  Routing + Validation"]
+        FC["FoodController.php"]
+        RC["RecipeController.php"]
+    end
+
+    subgraph models["📦 models/  —  Business Logic + SQL"]
+        FM["Food.php\ninit() · display() · addRecipe()\ncreate() · update() · delete()"]
+        RM["Recipe.php\ncreate() · update() · delete()\ngetAllByFoodId() · foodExists()"]
+    end
+
+    subgraph helpers["🛠️ helpers/"]
+        RH["Response.php\nsuccess() · created()\nerror() · notFound()"]
+    end
+
+    subgraph config["⚙️ config/"]
+        DB["database.php\nPDO Connection"]
+    end
+
+    MySQL[("🗄️ MySQL\nfood_recipe_db")]
+
+    Client -->|"HTTP Request"| FE
+    Client -->|"HTTP Request"| RE
+    FE --> FC
+    RE --> RC
+    FC --> FM
+    FC --> RH
+    RC --> RM
+    RC --> RH
+    FE --> DB
+    RE --> DB
+    DB -->|PDO| FM
+    DB -->|PDO| RM
+    FM -->|SQL| MySQL
+    RM -->|SQL| MySQL
+    RH -->|"JSON Response"| Client
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>endpoints/ — รับ request, ตั้ง CORS</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>controllers/ — routing + input validation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>models/ — business logic + PDO query</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>helpers/ — JSON response helper</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>config/ — PDO connection singleton</div>
+    </div>
+  </div>
+
+  <!-- ======================== CLASS ======================== -->
+  <div class="section" id="sec-class">
+    <div class="section-header">
+      <span class="badge">Diagram 2</span>
+      <div>
+        <h2>📐 Class Diagram</h2>
+        <p>UML Class Diagram แสดง attributes, methods และ dependencies ของทุก class</p>
+      </div>
+    </div>
+
+    <div class="desc-box">
+      <strong>Food</strong> และ <strong>Recipe</strong> คือ Model layer — มี validate() เป็น private method ป้องกัน bad data ก่อน SQL · <strong>FoodController / RecipeController</strong> รับผิดชอบ routing เท่านั้น ไม่มี SQL · <strong>Response</strong> เป็น static helper class ไม่ต้อง instantiate · Food มีความสัมพันธ์ <em>Composition</em> 1..* กับ Recipe ผ่าน LEFT JOIN
+    </div>
+
+    <div class="diagram-card">
+      <div id="class-diagram-render" style="display:flex;justify-content:center;"></div>
+    </div>
+  </div>
+
+  <!-- ======================== SEQ 1: CREATE ======================== -->
+  <div class="section" id="sec-seq1">
+    <div class="section-header">
+      <span class="badge">Diagram 3</span>
+      <div>
+        <h2>➕ Sequence: POST Create Food</h2>
+        <p>แสดงการไหลของ request เมื่อ Client สร้าง Food ใหม่</p>
+      </div>
+    </div>
+
+    <div class="desc-box">
+      <strong>ขั้นตอน:</strong> Client ส่ง JSON → endpoint ตั้ง CORS → Controller ตรวจ input → Model validate() + INSERT → คืน id ใหม่ · ถ้า input ว่างเปล่า Controller ตอบ <strong>422</strong> ทันทีโดยไม่แตะ DB
+    </div>
+
+    <div class="diagram-card">
+      <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant E as foods.php
+    participant FC as FoodController
+    participant F as Food model
+    participant DB as MySQL
+
+    C->>+E: POST /foods.php { nameTh, category }
+    E->>E: Set CORS Headers
+    E->>+FC: handle("POST", body)
+    FC->>FC: ตรวจ nameTh ว่าง?
+    FC->>FC: ตรวจ category ว่าง?
+
+    alt Validation fails
+        FC-->>C: 422 { success:false, error }
+    else Valid input
+        FC->>+F: init(nameTh, category)
+        F-->>-FC: set properties
+
+        FC->>+F: create()
+        F->>F: validate()
+        F->>+DB: INSERT INTO foods VALUES(?,?)
+        DB-->>-F: lastInsertId = 4
+        F-->>-FC: return 4
+
+        FC-->>-E: Response::created({id:4,...})
+        E-->>-C: 201 { success:true, data:{id:4,...} }
+    end
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== SEQ 2: GET ======================== -->
+  <div class="section" id="sec-seq2">
+    <div class="section-header">
+      <span class="badge">Diagram 4</span>
+      <div>
+        <h2>🔍 Sequence: GET Food by ID</h2>
+        <p>แสดงการดึง Food พร้อม recipeList ผ่าน LEFT JOIN</p>
+      </div>
+    </div>
+
+    <div class="desc-box">
+      <strong>display()</strong> ใช้ LEFT JOIN ระหว่าง foods และ recipes ดึงมาเป็นหลาย row แล้ว loop สร้าง <strong>recipeList[]</strong> — ถ้าไม่พบ food ตอบ <strong>404</strong> ทันที
+    </div>
+
+    <div class="diagram-card">
+      <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant E as foods.php
+    participant FC as FoodController
+    participant F as Food model
+    participant DB as MySQL
+
+    C->>+E: GET /foods.php?id=1
+    E->>+FC: handle("GET", {id:1})
+    FC->>FC: id = (int)"1" = 1
+    FC->>FC: ตรวจ id > 0
+
+    FC->>+F: food.id=1, display()
+    F->>+DB: SELECT f.*, r.*\nFROM foods f\nLEFT JOIN recipes r ON f.id=r.food_id\nWHERE f.id=1
+    DB-->>-F: หลาย rows (1 food, N recipes)
+
+    F->>F: loop rows → recipeList[]
+
+    alt ไม่พบข้อมูล
+        F-->>FC: null
+        FC-->>C: 404 { success:false, error }
+    else พบข้อมูล
+        F-->>-FC: { id, nameTh, category, recipeList:[...] }
+        FC-->>-E: Response::success(food)
+        E-->>-C: 200 { success:true, data:{...recipeList} }
+    end
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== SEQ 3: DELETE ======================== -->
+  <div class="section" id="sec-seq3">
+    <div class="section-header">
+      <span class="badge">Diagram 5</span>
+      <div>
+        <h2>🗑️ Sequence: DELETE Food</h2>
+        <p>แสดงการลบ Food และ ON DELETE CASCADE ที่ลบ Recipes ด้วยอัตโนมัติ</p>
+      </div>
+    </div>
+
+    <div class="desc-box">
+      ก่อนลบ Controller เรียก <strong>exists()</strong> ตรวจก่อนว่า Food มีอยู่จริง — ถ้าไม่มีตอบ <strong>404</strong> ทันที · เมื่อลบ Food MySQL จะลบ recipes ที่ food_id ตรงกันด้วยผ่าน <strong>ON DELETE CASCADE</strong>
+    </div>
+
+    <div class="diagram-card">
+      <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant E as foods.php
+    participant FC as FoodController
+    participant F as Food model
+    participant DB as MySQL
+
+    C->>+E: DELETE /foods.php?id=2
+    E->>+FC: handle("DELETE", {id:2})
+    FC->>FC: id=2, ตรวจ id > 0
+
+    FC->>+F: food.id=2, exists()
+    F->>+DB: SELECT id FROM foods WHERE id=2
+    DB-->>-F: row / empty
+
+    alt ไม่พบ Food
+        F-->>FC: false
+        FC-->>C: 404 { success:false, error }
+    else พบ Food
+        F-->>-FC: true
+        FC->>+F: delete()
+        F->>+DB: DELETE FROM foods WHERE id=2
+        Note over DB: ON DELETE CASCADE\nลบ recipes.food_id=2 ทั้งหมด
+        DB-->>-F: rowCount=1
+        F-->>-FC: true
+        FC-->>-E: Response::success({id:2,...})
+        E-->>-C: 200 { success:true,\ndata:{id:2, message:"deleted"} }
+    end
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== API REFERENCE ======================== -->
+  <div class="section" id="sec-api">
+    <div class="section-header">
+      <span class="badge">Reference</span>
+      <div>
+        <h2>📡 API Reference</h2>
+        <p>สรุป endpoints ทั้งหมดพร้อม HTTP method และ response status</p>
+      </div>
+    </div>
+
+    <div class="desc-box">
+      Base URL: <strong>http://localhost/food-recipe-api/api/endpoints/</strong> · ทุก response มีรูปแบบ <strong>{ "success": bool, "data"|"error": ... }</strong>
+    </div>
+
+    <table class="http-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>Query / Body</th>
+          <th>สิ่งที่ทำ</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="method get">GET</span></td>
+          <td>/foods.php</td>
+          <td>—</td>
+          <td>ดู Food ทั้งหมด</td>
+          <td><span class="status s200">200</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get">GET</span></td>
+          <td>/foods.php</td>
+          <td>?id=1</td>
+          <td>ดู Food + recipeList (display)</td>
+          <td><span class="status s200">200</span> / <span class="status s404">404</span></td>
+        </tr>
+        <tr>
+          <td><span class="method post">POST</span></td>
+          <td>/foods.php</td>
+          <td>{ nameTh, category }</td>
+          <td>สร้าง Food ใหม่</td>
+          <td><span class="status s201">201</span> / <span class="status s422">422</span></td>
+        </tr>
+        <tr>
+          <td><span class="method put">PUT</span></td>
+          <td>/foods.php</td>
+          <td>{ id, nameTh, category }</td>
+          <td>แก้ไข Food</td>
+          <td><span class="status s200">200</span> / <span class="status s404">404</span> / <span class="status s422">422</span></td>
+        </tr>
+        <tr>
+          <td><span class="method delete">DELETE</span></td>
+          <td>/foods.php</td>
+          <td>?id=1</td>
+          <td>ลบ Food + Cascade Recipes</td>
+          <td><span class="status s200">200</span> / <span class="status s404">404</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get">GET</span></td>
+          <td>/recipes.php</td>
+          <td>?food_id=1</td>
+          <td>ดู Recipes ทั้งหมดของ Food</td>
+          <td><span class="status s200">200</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get">GET</span></td>
+          <td>/recipes.php</td>
+          <td>?id=1</td>
+          <td>ดู Recipe เดี่ยว</td>
+          <td><span class="status s200">200</span> / <span class="status s404">404</span></td>
+        </tr>
+        <tr>
+          <td><span class="method post">POST</span></td>
+          <td>/recipes.php</td>
+          <td>{ food_id, recipeName, quantity, unitName }</td>
+          <td>เพิ่ม Recipe (addRecipe)</td>
+          <td><span class="status s201">201</span> / <span class="status s422">422</span> / <span class="status s404">404</span></td>
+        </tr>
+        <tr>
+          <td><span class="method put">PUT</span></td>
+          <td>/recipes.php</td>
+          <td>{ id, recipeName, quantity, unitName }</td>
+          <td>แก้ไข Recipe</td>
+          <td><span class="status s200">200</span> / <span class="status s404">404</span></td>
+        </tr>
+        <tr>
+          <td><span class="method delete">DELETE</span></td>
+          <td>/recipes.php</td>
+          <td>?id=1</td>
+          <td>ลบ Recipe</td>
+          <td><span class="status s200">200</span> / <span class="status s404">404</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>Food Recipe API System Diagrams · PHP PDO · สร้างด้วย Mermaid.js 10.9</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1e3a5f',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#3b82f6',
+      lineColor: '#60a5fa',
+      secondaryColor: '#0f172a',
+      tertiaryColor: '#1e293b',
+      background: '#0f172a',
+      mainBkg: '#1e293b',
+      nodeBorder: '#334155',
+      clusterBkg: '#0f172a',
+      titleColor: '#f1f5f9',
+      edgeLabelBackground: '#1e293b',
+      actorBkg: '#1e3a5f',
+      actorBorder: '#3b82f6',
+      actorTextColor: '#e2e8f0',
+      activationBorderColor: '#60a5fa',
+      activationBkgColor: '#1e3a5f',
+      sequenceNumberColor: '#e2e8f0',
+      noteBkgColor: '#713f12',
+      noteTextColor: '#fde68a',
+      noteBorderColor: '#f59e0b',
+    },
+    flowchart: { curve: 'basis', padding: 20 },
+    sequence: { actorMargin: 60, mirrorActors: false, showSequenceNumbers: true }
+  });
+
+  // ---- Class Diagram rendered via JS to avoid HTML-parsing issues with << >> ----
+  const classDiagramDef = `classDiagram
+    class Database {
+        -string host
+        -string db_name
+        -string username
+        -string password
+        +getConnection() PDO
+    }
+    class Food {
+        +int id
+        +string nameTh
+        +string category
+        +array recipeList
+        +init(name, category) void
+        +display() array
+        +addRecipe(recipe) int
+        +getAll() array
+        +create() int
+        +update() bool
+        +delete() bool
+        +exists() bool
+        -validate() void
+    }
+    class Recipe {
+        +int id
+        +int food_id
+        +string recipeName
+        +float quantity
+        +string unitName
+        +getAllByFoodId() array
+        +getOne() array
+        +create() int
+        +update() bool
+        +delete() bool
+        +foodExists() bool
+        -validate() void
+    }
+    class Response {
+        +success(data, code) void
+        +created(data) void
+        +error(message, code) void
+        +notFound(message) void
+        +serverError(message) void
+        +methodNotAllowed() void
+    }
+    class FoodController {
+        -food
+        +handle(method, query, body) void
+        -handleGet(query) void
+        -handlePost(body) void
+        -handlePut(body) void
+        -handleDelete(query) void
+    }
+    class RecipeController {
+        -recipe
+        +handle(method, query, body) void
+        -handleGet(query) void
+        -handlePost(body) void
+        -handlePut(body) void
+        -handleDelete(query) void
+    }
+    Database --> Food : provides PDO
+    Database --> Recipe : provides PDO
+    FoodController --> Food : uses
+    FoodController --> Response : uses
+    RecipeController --> Recipe : uses
+    RecipeController --> Response : uses
+    Food "1" --> "0..*" Recipe : has recipeList`;
+
+  mermaid.render('classDiagramSvg', classDiagramDef).then(function(result) {
+    document.getElementById('class-diagram-render').innerHTML = result.svg;
+  }).catch(function(err) {
+    document.getElementById('class-diagram-render').innerHTML =
+      '<p style="color:#f87171;padding:16px">Render error: ' + err.message + '</p>';
+  });
+
+  function show(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('visible');
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

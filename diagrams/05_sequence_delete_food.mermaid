@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    actor C as 👤 Client
+    participant E as foods.php<br/>(endpoint)
+    participant FC as FoodController
+    participant F as Food<br/>(model)
+    participant DB as MySQL
+
+    C->>+E: DELETE /foods.php?id=2
+
+    E->>+FC: handle("DELETE", {id:"2"}, [])
+    FC->>FC: id = 2, ตรวจ id > 0? ✅
+
+    FC->>+F: food.id = 2<br/>exists()
+    F->>+DB: SELECT id FROM foods WHERE id = 2
+    DB-->>-F: row found
+
+    alt ❌ ไม่พบ Food
+        F-->>FC: false
+        FC-->>C: 404 { "success": false, "error": "Food id=2 not found" }
+    else ✅ พบ Food
+        F-->>-FC: true
+
+        FC->>+F: delete()
+        F->>+DB: DELETE FROM foods WHERE id = 2
+        Note over DB: ON DELETE CASCADE<br/>ลบ recipes ที่ food_id=2 ทั้งหมดด้วย
+        DB-->>-F: rowCount = 1
+        F-->>-FC: true
+
+        FC->>FC: Response::success({id:2, message:...})
+        FC-->>-E: ส่ง response
+        E-->>-C: 200 { "success": true,<br/>"data": { "id": 2, "message": "Food deleted successfully" } }
+    end

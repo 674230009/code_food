@@ -1,0 +1,32 @@
+sequenceDiagram
+    autonumber
+    actor C as 👤 Client
+    participant E as foods.php<br/>(endpoint)
+    participant FC as FoodController
+    participant F as Food<br/>(model)
+    participant DB as MySQL
+
+    C->>+E: GET /foods.php?id=1
+
+    E->>E: ตั้ง CORS Headers
+    E->>+FC: handle("GET", {id:"1"}, [])
+
+    FC->>FC: id = (int)"1" = 1
+    FC->>FC: ตรวจ id > 0? ✅
+
+    FC->>+F: food.id = 1<br/>display()
+    F->>+DB: SELECT f.*, r.id, r.recipeName,<br/>r.quantity, r.unitName<br/>FROM foods f<br/>LEFT JOIN recipes r ON f.id = r.food_id<br/>WHERE f.id = 1
+    DB-->>-F: rows (หลาย row ต่อ recipe)
+
+    F->>F: สร้าง food array<br/>วน loop rows → recipeList[]
+
+    alt ❌ ไม่พบข้อมูล (rows ว่าง)
+        F-->>FC: return null
+        FC->>FC: Response::notFound()
+        FC-->>C: 404 { "success": false,<br/>"error": "Food id=1 not found" }
+    else ✅ พบข้อมูล
+        F-->>-FC: return {<br/>  id: 1,<br/>  nameTh: "ผัดกะเพรา",<br/>  category: "อาหารไทย",<br/>  recipeList: [ {...}, {...} ]<br/>}
+        FC->>FC: Response::success(food)
+        FC-->>-E: ส่ง response
+        E-->>-C: 200 { "success": true,<br/>"data": { id, nameTh, category,<br/>recipeList: [ ... ] } }
+    end

@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    actor C as 👤 Client
+    participant E as foods.php<br/>(endpoint)
+    participant FC as FoodController
+    participant F as Food<br/>(model)
+    participant DB as MySQL
+
+    C->>+E: POST /foods.php<br/>{ "nameTh": "ข้าวผัด", "category": "อาหารไทย" }
+
+    E->>E: ตั้ง CORS Headers
+    E->>E: parse JSON body
+
+    E->>+FC: handle("POST", [], body)
+    FC->>FC: ตรวจ nameTh ว่าง?
+    FC->>FC: ตรวจ category ว่าง?
+
+    alt ❌ Validation fails
+        FC-->>C: 422 { success:false, error:"nameTh and category are required" }
+    else ✅ Valid
+        FC->>+F: init("ข้าวผัด", "อาหารไทย")
+        F-->>-FC: nameTh, category set
+
+        FC->>+F: create()
+        F->>F: validate() — ตรวจอีกครั้ง
+        F->>+DB: INSERT INTO foods (nameTh, category) VALUES (?, ?)
+        DB-->>-F: lastInsertId = 4
+        F-->>-FC: return 4
+
+        FC->>FC: Response::created({id:4, ...})
+        FC-->>-E: ส่ง response
+        E-->>-C: 201 { "success": true,<br/>"data": { "id": 4, "nameTh": "ข้าวผัด",<br/>"category": "อาหารไทย", "message": "Food created" } }
+    end

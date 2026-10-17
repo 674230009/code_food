@@ -1,0 +1,78 @@
+classDiagram
+    direction TB
+
+    class Database {
+        -host : string
+        -db_name : string
+        -username : string
+        -password : string
+        +conn : PDO
+        +getConnection() PDO
+    }
+
+    class Food {
+        +id : int
+        +nameTh : string
+        +category : string
+        +recipeList : array
+        +init(name, category) void
+        +display() array
+        +addRecipe(recipe) int
+        +getAll() array
+        +create() int
+        +update() bool
+        +delete() bool
+        +exists() bool
+        -validate() void
+    }
+
+    class Recipe {
+        +id : int
+        +food_id : int
+        +recipeName : string
+        +quantity : float
+        +unitName : string
+        +getAllByFoodId() array
+        +getOne() array
+        +create() int
+        +update() bool
+        +delete() bool
+        +foodExists() bool
+        -validate() void
+    }
+
+    class Response {
+        <<utility>>
+        +success(data, code) void
+        +created(data) void
+        +error(message, code) void
+        +notFound(message) void
+        +serverError(message) void
+        +methodNotAllowed() void
+    }
+
+    class FoodController {
+        -food : Food
+        +handle(method, query, body) void
+        -handleGet(query) void
+        -handlePost(body) void
+        -handlePut(body) void
+        -handleDelete(query) void
+    }
+
+    class RecipeController {
+        -recipe : Recipe
+        +handle(method, query, body) void
+        -handleGet(query) void
+        -handlePost(body) void
+        -handlePut(body) void
+        -handleDelete(query) void
+    }
+
+    Database --> Food : provides PDO
+    Database --> Recipe : provides PDO
+    FoodController --> Food : creates and calls
+    FoodController --> Response : uses static methods
+    RecipeController --> Recipe : creates and calls
+    RecipeController --> Response : uses static methods
+    Food "1" *-- "0..*" Recipe : recipeList via JOIN
